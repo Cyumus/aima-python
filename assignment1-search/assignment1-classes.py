@@ -61,20 +61,37 @@ class BoardProblem(search.Problem):
         for _ in range(char_list.count(' ')):
             space_index = char_list.index(' ', last_space_index)
             for near_position in [-2, -1, 1, 2]:
-                if space_index + near_position in range(len(state)):
-                    for move in self.moves(state, space_index, near_position):
-                        actions.append((space_index + near_position, move))
+                for move in self.moves(state, space_index, near_position):
+                    actions.append((space_index + near_position, move))
             last_space_index = space_index
         return actions
 
-    # todo the moves function
     # The moves function returns all possible moves and jumps of a given piece
     # position relative to the space_index in the given state
     # It checks if the piece can move or jump to the space, if so, it returns
     # the move or jump as an action
-    def moves(self, state, space_index, piece):
+    def moves(self, state, space_index, near_position):
         moves = []
+        if space_index + near_position in range(len(state)):
+            piece = space_index + near_position
+            if near_position == -2 and not self.same(state, piece, self.JUMP_RIGHT):
+                # It's a jump from the left and it's not the same color
+                moves.append((piece, self.JUMP_RIGHT))  # So we make the piece to jump to the right
+
+            elif near_position == -1:  # It's a move from the left
+                moves.append((piece, self.MOVE_RIGHT))  # So we make the piece to move to the right
+
+            elif near_position == 1:  # It's a move from the right
+                moves.append((piece, self.MOVE_LEFT))  # So we make the piece to move to the left
+
+            elif near_position == 2 and not self.same(state, piece, self.JUMP_LEFT):
+                # It's a jump from the right and it's not the same color
+                moves.append((piece, self.JUMP_LEFT))  # So we make the piece to jump to the left
         return moves
+
+    # The same function returns if the active piece is the same color of the target piece
+    def same(self, state, piece, jump):
+        return state[piece] == state[piece + jump['value']]
 
     # todo value function
     # The value function sets a cost to make the decision making optimized
@@ -86,7 +103,6 @@ class BoardProblem(search.Problem):
     def goal_test(self, state):
         return state.count(self.goal['char']) == self.goal['cant']
 
-    # todo path_cost function
     # The path_cost function gets the cost of the action made from state1
     # to state2.
     def path_cost(self, c, state1, action, state2):
