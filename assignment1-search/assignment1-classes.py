@@ -72,9 +72,9 @@ class BoardProblem(search.Problem):
     # the move or jump as an action
     def moves(self, state, space_index, near_position):
         moves = []
-        if space_index + near_position in range(len(state)):
-            piece = space_index + near_position
-            if near_position == -2 and not self.same(state, piece, self.JUMP_RIGHT):
+        piece = space_index + near_position
+        if piece in range(len(state)):
+            if near_position == -2 and not self.is_last_black(state, piece, self.JUMP_RIGHT):
                 # It's a jump from the left and it's not the same color
                 moves.append((piece, self.JUMP_RIGHT))  # So we make the piece to jump to the right
 
@@ -84,14 +84,14 @@ class BoardProblem(search.Problem):
             elif near_position == 1:  # It's a move from the right
                 moves.append((piece, self.MOVE_LEFT))  # So we make the piece to move to the left
 
-            elif near_position == 2 and not self.same(state, piece, self.JUMP_LEFT):
+            elif near_position == 2 and not self.is_last_black(state, piece, self.JUMP_LEFT):
                 # It's a jump from the right and it's not the same color
                 moves.append((piece, self.JUMP_LEFT))  # So we make the piece to jump to the left
         return moves
 
-    # The same function returns if the active piece is the same color of the target piece
-    def same(self, state, piece, jump):
-        return state[piece] == state[piece + jump['value']]
+    # The last_black function returns true if the piece that is jumped over is the last black piece in the board
+    def is_last_black(self, state, piece, jump):
+        return state.count("B") == 1 and state[piece + jump['value']] == "B"
 
     # todo value function
     # The value function sets a cost to make the decision making optimized
