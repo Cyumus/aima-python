@@ -1,14 +1,13 @@
 from assignment1_classes import (BoardProblem, compare_searchers)
 from search import (
     breadth_first_search,
-    compare_graph_searchers,
     depth_first_graph_search,
     iterative_deepening_search,
     astar_search
 )
 
 initial = "BBWW "
-goal = {'char': "B", 'cant': 4}
+goal = {'char': "B", 'cant': 4, 'h': "W"}
 problem = [BoardProblem(initial=initial, goal=goal)]
 
 compare_searchers(problems=problem,
@@ -16,6 +15,6 @@ compare_searchers(problems=problem,
                   searchers=[breadth_first_search,
                              depth_first_graph_search,
                              iterative_deepening_search,
-                             # astar_search todo A* search
+                             astar_search
                              # todo IDA* search
                     ])

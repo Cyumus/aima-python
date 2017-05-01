@@ -100,20 +100,22 @@ class BoardProblem(search.Problem):
     def is_last_black(self, state, piece, jump):
         return state.count("B") == 1 and state[piece + jump['value']] == "B"
 
-    # todo value function
-    # The value function sets a cost to make the decision making optimized
+    # The value function returns the value of the current state
     def value(self, state):
-        pass
+        return state.count(self.goal['char'])
 
     # The goal_test function tests if the given state is a solution or it
     # has to still searching for it.
     def goal_test(self, state):
-        return state.count(self.goal['char']) == self.goal['cant']
+        return self.value(state) == self.goal['cant']
 
     # The path_cost function gets the cost of the action made from state1
     # to state2.
     def path_cost(self, c, state1, action, state2):
         return 1
+
+    def h(self, node):
+        return node.state.count(self.goal['h'])
 
 
 class InstrumentedBoardProblem(search.InstrumentedProblem):
