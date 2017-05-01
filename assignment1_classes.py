@@ -1,4 +1,11 @@
 import search
+from search import (breadth_first_tree_search,
+                    breadth_first_search,
+                    depth_first_graph_search,
+                    iterative_deepening_search,
+                    depth_limited_search,
+                    recursive_best_first_search)
+from utils import (name, print_table)
 
 
 class BoardProblem(search.Problem):
@@ -23,10 +30,10 @@ class BoardProblem(search.Problem):
     # The result function executes the given action to the current state
     # and returns the result of that action.
     def result(self, state, action):
-        if action['id'] in (self.MOVE_RIGHT['id'], self.MOVE_LEFT['id']):
-            return self.move(state, state[action[0]], action[1])
-        elif action['id'] in (self.JUMP_RIGHT['id'], self.JUMP_LEFT['id']):
-            return self.jump(state, state[action[0]], action[1])
+        if action[1] in (self.MOVE_RIGHT, self.MOVE_LEFT):
+            return self.move(state, action[0], action[1])
+        elif action[1] in (self.JUMP_RIGHT, self.JUMP_LEFT):
+            return self.jump(state, action[0], action[1])
         else:
             raise AttributeError
 
@@ -62,7 +69,7 @@ class BoardProblem(search.Problem):
             space_index = char_list.index(' ', last_space_index)
             for near_position in [-2, -1, 1, 2]:
                 for move in self.moves(state, space_index, near_position):
-                    actions.append((space_index + near_position, move))
+                    actions.append(move)
             last_space_index = space_index
         return actions
 
@@ -107,3 +114,33 @@ class BoardProblem(search.Problem):
     # to state2.
     def path_cost(self, c, state1, action, state2):
         return 1
+
+
+class InstrumentedBoardProblem(search.InstrumentedProblem):
+    moves = ["moves right", "moves left", "jumps right", "jumps left"]
+    def __init__(self, problem):
+        super().__init__(problem)
+        self.final_solution = None
+
+    def __repr__(self):
+        repr_final_solution = ""
+        for node in self.final_solution:
+            repr_final_solution += "Piece {} {}. ".format(node[0], self.moves[node[1]['id']])
+        return '<{:4d}/{:4d}/{:4d}/{}/{}>'.format(self.succs, self.goal_tests,
+                                               self.states, repr_final_solution, str(self.found))
+
+
+def compare_searchers(problems, header,
+                      searchers=[breadth_first_tree_search,
+                                 breadth_first_search,
+                                 depth_first_graph_search,
+                                 iterative_deepening_search,
+                                 depth_limited_search,
+                                 recursive_best_first_search]):
+    def do(searcher, problem):
+        p = InstrumentedBoardProblem(problem)
+        solution = searcher(p)
+        p.final_solution = solution.solution()
+        return p
+    table = [[name(s)] + [do(s, p) for p in problems] for s in searchers]
+    print_table(table, header)
